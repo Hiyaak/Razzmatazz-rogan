@@ -3,7 +3,7 @@ import './App.css'
 function App () {
   return (
     <>
-      <h1>roghan</h1>
+      <h1>Roghan of Razmataz</h1>
     </>
   )
 }
