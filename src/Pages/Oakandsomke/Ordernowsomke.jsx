@@ -8,7 +8,7 @@ import {
   User,
   Leaf
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import heroImage from '../../assets/concept.jpg'
 
 import oak from '../../assets/roghan.png'
@@ -19,6 +19,22 @@ const FoodDeliveryApp = () => {
   const [selectedTab, setSelectedTab] = useState('Delivery')
   const [brandId, setBrandId] = useState(null)
   const navigate = useNavigate()
+
+  const {
+    selectedMethod,
+    selectedGovernate,
+    selectedGovernateId,
+    selectedArea,
+    selectedAreaId
+  } = JSON.parse(localStorage.getItem('selectedLocation') || '{}')
+
+  console.log('Full selectedLocation:', {
+    selectedMethod,
+    selectedGovernate,
+    selectedGovernateId,
+    selectedArea,
+    selectedAreaId
+  })
 
   const getProductCategories = async () => {
     try {
@@ -32,11 +48,10 @@ const FoodDeliveryApp = () => {
           const brandIdFromApi = data.products[0].brand_id
           setBrandId(brandIdFromApi)
 
-          // ✅ also persist to localStorage
           localStorage.setItem('brandId', brandIdFromApi)
         }
 
-        console.log('brand products:', data.products)
+        // console.log('brand products:', data.products)
       }
     } catch (error) {
       console.log('error ', error)
@@ -65,8 +80,8 @@ const FoodDeliveryApp = () => {
     navigate('/review')
   }
 
-  const pickupdelivery = () => {
-    navigate('/pickupdeviler')
+  const pickupdelivery = method => {
+    navigate('/pickupdeviler', { state: { method } })
   }
 
   const goToCart = () => {
@@ -101,28 +116,28 @@ const FoodDeliveryApp = () => {
 
             <div className='flex p-4 justify-center space-x-20'>
               <button
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation()
                   setSelectedTab('Delivery')
-                  pickupdelivery()
+                  pickupdelivery('delivery')
                 }}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  selectedTab === 'Delivery'
-                    ? 'bg-red-500 text-white'
-                    : 'bg-red-500 text-gray-600 hover:bg-red-200'
-                }`}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${selectedTab === 'Delivery'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-red-500 text-gray-600 hover:bg-red-200'
+                  }`}
               >
                 Delivery
               </button>
               <button
-                onClick={() => {
+                onClick={e => {
+                  e.stopPropagation()
                   setSelectedTab('Pickup')
-                  pickupdelivery()
+                  pickupdelivery('pickup')
                 }}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  selectedTab === 'Pickup'
-                    ? 'bg-white-900 text-white'
-                    : 'bg-red-500 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-6 py-3 rounded-lg font-medium transition-colors ${selectedTab === 'Pickup'
+                  ? 'bg-white-900 text-white'
+                  : 'bg-red-500 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 Pickup
               </button>
@@ -130,16 +145,26 @@ const FoodDeliveryApp = () => {
           </div>
 
           {/* Location and Time */}
-          <div className='px-4 pb-4 space-y-4'>
+          <div className='px-4 pb-4 space-y-4 mt-2'>
             <div className='flex items-center justify-between'>
               <div className='flex items-center space-x-3'>
                 <MapPin className='w-5 h-5 text-gray-400' />
                 <div>
-                  <p className='text-sm text-gray-500'>Deliver to</p>
-                  <p className='font-medium text-gray-900'>Choose location</p>
+                  <p className='font-medium text-gray-900'>
+                    {selectedMethod === 'delivery'
+                      ? 'Deliver to'
+                      : 'Pickup from'}
+                  </p>
+                  <p className='text-sm text-gray-500'>
+                    {selectedGovernate ? `${selectedGovernate}, ` : ''}
+                    {selectedArea || 'No location selected'}
+                  </p>
                 </div>
               </div>
-              <button className='text-red-500 font-medium hover:text-red-600'>
+              <button
+                onClick={() => navigate('/pickupdeviler')}
+                className='text-red-500 font-medium hover:text-red-600'
+              >
                 Edit
               </button>
             </div>
@@ -177,11 +202,16 @@ const FoodDeliveryApp = () => {
           </div>
 
           {/* Select Location Button */}
-          <div className='p-3'>
-            <button className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors'>
-              Select your location
-            </button>
-          </div>
+          {!(selectedMethod && (selectedArea || selectedGovernate)) && (
+            <div className='p-3'>
+              <button
+                onClick={() => navigate('/pickupdeviler')} // navigate to pickup/delivery screen
+                className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors'
+              >
+                Select your location
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right Panel - 60% */}
@@ -286,11 +316,10 @@ const FoodDeliveryApp = () => {
               setSelectedTab('Delivery')
               pickupdelivery()
             }}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              selectedTab === 'Delivery'
-                ? 'bg-gray-900 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${selectedTab === 'Delivery'
+              ? 'bg-gray-900 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             Delivery
           </button>
@@ -299,11 +328,10 @@ const FoodDeliveryApp = () => {
               setSelectedTab('Pickup')
               pickupdelivery()
             }}
-            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-              selectedTab === 'Pickup'
-                ? 'bg-gray-900 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${selectedTab === 'Pickup'
+              ? 'bg-gray-900 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             Pickup
           </button>
@@ -315,8 +343,14 @@ const FoodDeliveryApp = () => {
             <div className='flex items-center gap-2'>
               <MapPin className='w-5 h-5 text-gray-400' />
               <div>
-                <p className='text-sm text-gray-500'>Deliver to</p>
-                <p className='font-medium text-gray-900'>Choose location</p>
+                <p className='text-sm text-gray-500'>
+                  {selectedMethod === 'delivery' ? 'Deliver to' : 'Pickup from'}
+                </p>
+                <p className='font-medium text-gray-900'>
+                  {selectedGovernate || selectedArea
+                    ? `${selectedGovernate || ''}${selectedGovernate && selectedArea ? ', ' : ''}${selectedArea || ''}`
+                    : 'Choose location'}
+                </p>
               </div>
             </div>
             <button className='text-red-500 font-medium hover:text-red-600 text-sm'>
