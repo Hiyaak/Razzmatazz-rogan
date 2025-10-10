@@ -12,13 +12,9 @@ const Subproducts = () => {
   const navigate = useNavigate()
   const { cart, addToCart, updateQuantity } = useCart()
 
-  const {
-    selectedMethod,
-    selectedGovernate,
-    selectedGovernateId,
-    selectedArea,
-    selectedAreaId
-  } = JSON.parse(localStorage.getItem('selectedLocation') || '{}')
+  const { selectedMethod, selectedGovernate, selectedArea } = JSON.parse(
+    localStorage.getItem('selectedLocation') || '{}'
+  )
 
   const [subProductCategories, setSubProductCategories] = useState([])
   const searchParams = new URLSearchParams(location.search)
@@ -34,7 +30,7 @@ const Subproducts = () => {
     try {
       const payload = {
         product_id: productId,
-        brandName: 'Roghan',
+        brandName: 'Roghan'
       }
       const { data } = await ApiService.post('getAllSubproducts', payload)
       if (data.status) setSubProductCategories(data.subproducts)
@@ -60,12 +56,16 @@ const Subproducts = () => {
     navigate('/shoopingcart')
   }
 
+  const handeleSearch = () => {
+    navigate('/search')
+  }
+
   return (
     <div className='flex flex-col md:flex-row min-h-screen'>
       {/* Left Sidebar */}
-      <div className='w-full md:w-2/5 min-h-screen border-r border-gray-200 flex flex-col'>
+      <div className='w-full md:w-2/5 h-screen border-r border-gray-200 flex flex-col'>
         {/* Header */}
-        <div className='p-2 border-b border-gray-200'>
+        <div className='p-2 border-b border-gray-200 flex-shrink-0'>
           <div className='flex items-center justify-between mb-1'>
             <button
               onClick={() => navigate('/')}
@@ -82,9 +82,9 @@ const Subproducts = () => {
           </div>
         </div>
 
-        {/* Subproducts */}
-        <div className='flex-1 px-4 space-y-4 mt-8'>
-          <div className='grid grid-cols-2 gap-4 cursor-pointer'>
+        {/* Subproducts - Scrollable */}
+        <div className='flex-1  overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
+          <div className='grid grid-cols-2 gap-4 cursor-pointer mt-8 pb-4'>
             {subProductCategories.map(item => {
               const quantity = getProductQuantity(item._id)
               return (
@@ -143,35 +143,51 @@ const Subproducts = () => {
           </div>
         </div>
 
-        {/* Review Order */}
-        <div
-          className='p-3 border-t border-gray-200 bg-white'
-          onClick={handleReviewOrder}
-        >
-          <button className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-between px-6'>
-            {/* Left - Items Count */}
-            <div className='flex items-center'>
-              <span className='bg-white/20 rounded-sm w-6 h-6 flex items-center justify-center text-sm'>
-                {cart.length}
+        {/* Bottom Section */}
+        {!(selectedMethod && (selectedArea || selectedGovernate)) ? (
+          // ❌ Location not selected — show "Select your location"
+          <div className='p-3 border-t border-gray-200 bg-white flex-shrink-0'>
+            <button
+              onClick={() => navigate('/pickupdeviler')}
+              className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors'
+            >
+              Select your location
+            </button>
+          </div>
+        ) : (
+          // ✅ Location selected — show "Review Order"
+          <div
+            className='p-3 border-t border-gray-200 bg-white flex-shrink-0'
+            onClick={handleReviewOrder}
+          >
+            <button className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-between px-6'>
+              {/* Left - Items Count */}
+              <div className='flex items-center'>
+                <span className='bg-white/20 rounded-sm w-6 h-6 flex items-center justify-center text-sm'>
+                  {cart.length}
+                </span>
+              </div>
+
+              {/* Center - Review Order Text */}
+              <span>Review Order</span>
+
+              {/* Right - Total Price */}
+              <span>
+                {cart
+                  .reduce(
+                    (total, item) => total + item.price * item.quantity,
+                    0
+                  )
+                  .toFixed(3)}{' '}
+                KD
               </span>
-            </div>
-
-            {/* Center - Review Order Text */}
-            <span>Review Order</span>
-
-            {/* Right - Total Price */}
-            <span>
-              {cart
-                .reduce((total, item) => total + item.price * item.quantity, 0)
-                .toFixed(3)}{' '}
-              KD
-            </span>
-          </button>
-        </div>
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Right Panel */}
-      <div className='flex-1 relative bg-black'>
+      {/* Right Panel - Fixed, No Scroll */}
+      <div className='flex-1 relative bg-black h-screen overflow-hidden'>
         {/* Top Navigation — hidden on mobile */}
         <div className='hidden md:absolute md:top-6 md:left-6 md:right-6 md:z-10 md:block'>
           <div className='flex justify-between items-center'>
@@ -189,7 +205,7 @@ const Subproducts = () => {
                 <ShoppingBag className='w-6 h-6' />
               </button>
               <button className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'>
-                <Search className='w-6 h-6' />
+                <Search onClick={handeleSearch} className='w-6 h-6' />
               </button>
               <button className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'>
                 <User className='w-6 h-6' />
@@ -199,7 +215,7 @@ const Subproducts = () => {
         </div>
 
         {/* Hero Section — hidden on mobile */}
-        <div className='hidden md:block relative h-screen'>
+        <div className='hidden md:block relative h-full'>
           <img
             src={heroImage}
             alt='Hero Food'
