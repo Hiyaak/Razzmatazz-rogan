@@ -6,7 +6,9 @@ import {
   ShoppingBag,
   Search,
   User,
-  Leaf
+  Leaf,
+  LogOut,
+  AlertCircle
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import heroImage from '../../assets/concept.jpg'
@@ -80,8 +82,16 @@ const FoodDeliveryApp = () => {
     navigate('/search')
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('guestUserId')
+    localStorage.removeItem('registredUserId')
+    localStorage.removeItem('selectedLocation')
+
+    navigate('/')
+  }
+
   const handleBrandClick = () => {
-    navigate('/review')
+    navigate('/contact')
   }
 
   const pickupdelivery = method => {
@@ -101,18 +111,24 @@ const FoodDeliveryApp = () => {
               className='cursor-pointer transition-colors border-b border-gray-200'
             >
               <div className='flex items-center justify-between px-6 py-4'>
+                {/* Left side - logo and text */}
                 <div className='flex items-center space-x-3'>
                   <img
                     src={oak}
                     alt='Logo'
-                    className='w-12 h-12 object-contain'
+                    className='w-16 h-16 object-contain'
                   />
                   <div>
                     <h1 className='text-lg font-bold text-gray-900'>
                       Roghan
                     </h1>
-                    <p className='text-xs text-gray-500'>Smoke Meat Everyday</p>
+                    <p className='text-sm text-gray-500'>Smoke Meat Everyday</p>
                   </div>
+                </div>
+
+                {/* Right side - centered FiAlertCircle */}
+                <div className='flex items-center justify-center'>
+                  <AlertCircle className='w-5 h-5 text-gray-600' />
                 </div>
               </div>
 
@@ -194,11 +210,11 @@ const FoodDeliveryApp = () => {
             </div>
 
             {/* Food Categories */}
-            <div className='px-4 pb-4 mt-6 grid grid-cols-2 gap-4 cursor-pointer'>
+            <div className='px-2 pt-8 pb-4 bg-gray-100 grid grid-cols-2 gap-2 cursor-pointer'>
               {productCategories.map(item => (
                 <div
                   key={item._id}
-                  className='relative rounded-lg overflow-hidden shadow group'
+                  className='relative rounded-lg overflow-hidden shadow'
                   onClick={() => handleProduct(item._id, item.productName)}
                 >
                   <img
@@ -206,9 +222,9 @@ const FoodDeliveryApp = () => {
                     alt={item.productName}
                     className='w-full h-56 object-cover'
                   />
-                  <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition'>
-                    <h3 className='text-white font-bold text-lg text-center'>
-                      {item.productName}
+                  <div className='absolute inset-0 bg-black/25 flex items-center justify-center'>
+                    <h3 className='text-gray-100 font-bold text-lg text-center'>
+                      {item.productName.toUpperCase()}
                     </h3>
                   </div>
                 </div>
@@ -221,7 +237,7 @@ const FoodDeliveryApp = () => {
             <div className='p-3 border-t border-gray-200 bg-white flex-shrink-0'>
               <button
                 onClick={() => navigate('/pickupdeviler')}
-                className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors'
+                className='w-full bg-[#FA0303] hover:bg-[#AF0202] text-white font-bold py-3 rounded-lg transition-colors'
               >
                 Select your location
               </button>
@@ -250,8 +266,11 @@ const FoodDeliveryApp = () => {
                 <button className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'>
                   <Search onClick={handeleSearch} className='w-6 h-6' />
                 </button>
-                <button className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'>
-                  <User className='w-6 h-6' />
+                <button
+                  onClick={handleLogout}
+                  className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'
+                >
+                  <LogOut className='w-6 h-6' />
                 </button>
               </div>
             </div>
@@ -261,10 +280,10 @@ const FoodDeliveryApp = () => {
           <img
             src={heroImage}
             alt='Hero Food'
-            className='w-full h-full object-fill'
+            className='w-full h-full object-cover'
           />
 
-          <div className='absolute bottom-8 left-8 z-20'>
+          <div className='absolute top-1/2 right-0 z-20 transform -translate-y-1/2'>
             <div className='w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm'>
               IG
             </div>
@@ -274,143 +293,152 @@ const FoodDeliveryApp = () => {
 
       {/* Mobile layout (below md) */}
       <div className='block md:hidden flex flex-col h-screen bg-gray-50'>
-        {/* Header Section - Fixed */}
-        <nav className='w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm flex-shrink-0'>
-          <div className='flex items-center space-x-2'>
-            <button onClick={handleMenuClick} className='p-2'>
-              <Menu className='w-6 h-6 text-gray-700' />
-            </button>
-          </div>
-          <div
-            onClick={handleBrandClick}
-            className='flex items-center space-x-2 cursor-pointer'
-          >
-            <div className='flex items-center justify-center w-8 h-8 bg-red-100 rounded-full'>
-              <Leaf className='w-4 h-4 text-red-600' />
+        <div className='flex flex-col h-full'>
+          {/* Header Section - Fixed */}
+          <nav className='w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm flex-shrink-0'>
+            <div className='flex items-center space-x-2'>
+              <button onClick={handleMenuClick} className='p-2'>
+                <Menu className='w-6 h-6 text-gray-700' />
+              </button>
             </div>
-            <div className='font-bold text-xl text-red-600'>Roghan</div>
-          </div>
-          <div className='flex items-center space-x-2'>
-            <button onClick={handleshoopingcartClick} className='p-2'>
-              <ShoppingBag className='w-6 h-6 text-gray-700' />
-            </button>
-            <button className='p-2'>
-              <Search className='w-6 h-6 text-gray-700' />
-            </button>
-            <button className='p-2'>
-              <User className='w-6 h-6 text-gray-700' />
-            </button>
-          </div>
-        </nav>
-
-        {/* Hero Image - Fixed */}
-        <div className='w-full relative flex-shrink-0'>
-          <img
-            src={heroImage}
-            alt='Hero Food'
-            className='w-full h-48 object-fill'
-          />
-
+            <div
+              onClick={handleBrandClick}
+              className='flex items-center space-x-2 cursor-pointer'
+            >
+              <div className='flex items-center justify-center w-8 h-8 bg-red-100 rounded-full'>
+                <Leaf className='w-4 h-4 text-red-600' />
+              </div>
+              <div className='font-bold text-xl text-red-600'>Roghan</div>
+            </div>
+            <div className='flex items-center space-x-2'>
+              <button onClick={handleshoopingcartClick} className='p-2'>
+                <ShoppingBag className='w-6 h-6 text-gray-700' />
+              </button>
+              <button className='p-2'>
+                <Search
+                  onClick={handeleSearch}
+                  className='w-6 h-6 text-gray-700'
+                />
+              </button>
+              <button className='p-2'>
+                <User className='w-6 h-6 text-gray-700' />
+              </button>
+            </div>
+          </nav>
           {/* Instagram Floating Button */}
-          <div className='absolute bottom-4 left-4 z-20'>
-            <div className='w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm'>
+          <div className='absolute top-1/2 right-0 z-20 transform -translate-y-1/2'>
+            <div className='w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm'>
               IG
             </div>
           </div>
-        </div>
 
-        {/* Delivery/Pickup Tabs - Fixed */}
-        <div className='flex justify-between gap-8 px-6 py-4 border-t border-gray-300'>
-          <button
-            onClick={e => {
-              e.stopPropagation()
-              setSelectedTab('Delivery')
-              pickupdelivery('delivery')
-            }}
-            className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
-              selectedTab === 'delivery'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'bg-white text-gray-700 border-2 border-gray-500 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Delivery
-          </button>
-          <button
-            onClick={e => {
-              e.stopPropagation()
-              setSelectedTab('Pickup')
-              pickupdelivery('pickup')
-            }}
-            className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
-              selectedTab === 'Pickup'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'bg-white text-gray-700 border-2 border-gray-500 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Pickup
-          </button>
-        </div>
-
-        {/* Location and Time Info */}
-        <div className='px-4 pb-4 space-y-4 mt-2 flex-shrink-0'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-6'>
-              <MapPin className='w-5 h-5 text-gray-400' />
-              <p className='text-sm text-gray-600'>
-                {selectedMethod === 'delivery' ? 'Deliver to' : 'Pickup from'}
-              </p>
+          {/* Scrollable Content Below Header */}
+          <div className='flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
+            {/* Hero Image */}
+            <div className='w-full relative'>
+              <img
+                src={heroImage}
+                alt='Hero Food'
+                className='w-full h-48 object-fill'
+              />
             </div>
-            <div className='flex items-center gap-6'>
-              {selectedGovernate && selectedArea ? (
-                <>
-                  <p className='text-sm font-medium text-gray-900'>
-                    {selectedArea}
-                  </p>
-                  <button
-                    onClick={() => navigate('/pickupdeviler')}
-                    className='text-sm text-red-500 hover:text-red-600'
-                  >
-                    Edit
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => navigate('/pickupdeviler')}
-                  className='text-sm font-medium text-gray-900 hover:text-gray-700'
-                >
-                  Choose location
-                </button>
-              )}
-            </div>
-          </div>
 
-          <div className='flex items-center gap-6'>
-            <Clock className='w-5 h-5 text-gray-400' />
-            <p className='text-sm text-gray-600'>Earliest arrival</p>
-          </div>
-        </div>
-
-        {/* Product Grid Section - Scrollable */}
-        <div className='flex-1 overflow-y-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
-          <div className='grid grid-cols-2 gap-4'>
-            {productCategories.map(item => (
-              <div
-                key={item._id}
-                className='relative rounded-lg overflow-hidden shadow group'
-                onClick={() => handleProduct(item._id, item.productName)}
+            {/* Delivery/Pickup Tabs */}
+            <div className='flex justify-center gap-24 px-6 py-4 border-t border-gray-300'>
+              <button
+                onClick={e => {
+                  e.stopPropagation()
+                  setSelectedTab('Delivery')
+                  pickupdelivery('delivery')
+                }}
+                className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
+                  selectedTab === 'delivery'
+                    ? 'bg-red-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-400 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
               >
-                <img
-                  src={`${ImagePath}${item.product_img[0]}`}
-                  alt={item.productName}
-                  className='w-full h-56 object-cover'
-                />
-                <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition'>
-                  <h3 className='text-white font-bold text-lg text-center'>
-                    {item.productName}
-                  </h3>
+                Delivery
+              </button>
+              <button
+                onClick={e => {
+                  e.stopPropagation()
+                  setSelectedTab('Pickup')
+                  pickupdelivery('pickup')
+                }}
+                className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
+                  selectedTab === 'Pickup'
+                    ? 'bg-red-600 text-white shadow-md'
+                    : 'bg-white text-gray-700 border border-gray-400 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                Pickup
+              </button>
+            </div>
+
+            {/* Location and Time Info */}
+            <div className='px-4 pb-4 space-y-4 mt-2'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-6'>
+                  <MapPin className='w-5 h-5 text-gray-400' />
+                  <p className='text-sm text-gray-600'>
+                    {selectedMethod === 'delivery'
+                      ? 'Deliver to'
+                      : 'Pickup from'}
+                  </p>
+                </div>
+                <div className='flex items-center gap-6'>
+                  {selectedGovernate && selectedArea ? (
+                    <>
+                      <p className='text-sm font-medium text-gray-900'>
+                        {selectedArea}
+                      </p>
+                      <button
+                        onClick={() => navigate('/pickupdeviler')}
+                        className='text-sm text-red-500 hover:text-red-600'
+                      >
+                        Edit
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => navigate('/pickupdeviler')}
+                      className='text-sm font-medium text-gray-900 hover:text-gray-700'
+                    >
+                      Choose location
+                    </button>
+                  )}
                 </div>
               </div>
-            ))}
+
+              <div className='flex items-center gap-6'>
+                <Clock className='w-5 h-5 text-gray-400' />
+                <p className='text-sm text-gray-600'>Earliest arrival</p>
+              </div>
+            </div>
+
+            {/* Product Grid Section - Scrollable */}
+            <div className='px-4 py-4'>
+              <div className='grid grid-cols-2 gap-2'>
+                {productCategories.map(item => (
+                  <div
+                    key={item._id}
+                    className='relative rounded-lg overflow-hidden shadow group'
+                    onClick={() => handleProduct(item._id, item.productName)}
+                  >
+                    <img
+                      src={`${ImagePath}${item.product_img[0]}`}
+                      alt={item.productName}
+                      className='w-full h-48 object-cover'
+                    />
+                    <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition'>
+                      <h3 className='text-white font-bold text-lg text-center'>
+                        {item.productName}
+                      </h3>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

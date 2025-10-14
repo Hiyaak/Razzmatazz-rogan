@@ -1,13 +1,21 @@
 import { useNavigate } from 'react-router-dom'
 import heroImage from '../../assets/concept.jpg'
-import { ArrowLeft, Menu, Search, User, ShoppingBag } from 'lucide-react'
+import {
+  ArrowLeft,
+  Menu,
+  Search,
+  User,
+  ShoppingBag,
+  LogOut
+} from 'lucide-react'
 
 import { useCart } from '../../Context/CartContext'
 import ApiService from '../../Services/Apiservice'
+import { toast } from 'react-toastify'
 
 const Placeorder = () => {
   const navigate = useNavigate()
-  const { cart, updateQuantity, removeFromCart } = useCart()
+  const { cart } = useCart()
 
   const handleMenuClick = () => {
     navigate('/menu')
@@ -15,6 +23,18 @@ const Placeorder = () => {
 
   const handleshoopingcartClick = () => {
     navigate('/shoopingcart')
+  }
+
+  const handeleSearch = () => {
+    navigate('/search')
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('guestUserId')
+    localStorage.removeItem('registredUserId')
+    localStorage.removeItem('selectedLocation')
+
+    navigate('/') // if using react-router
   }
 
   const handlePlaceOrder = async () => {
@@ -49,13 +69,13 @@ const Placeorder = () => {
 
       if (data.status) {
         console.log('Order placed successfully — Server Response:', data)
-        alert('Order placed successfully!')
+        toast.success('Order placed successfully!')
         navigate('/myorders')
       } else {
-        alert('Failed to place order.')
+        toast.error('Failed to place order. Please try again.')
       }
     } catch (error) {
-      console.error('❌ Error in placing order:', error)
+      toast.error('Something went wrong while placing your order.')
     }
   }
 
@@ -122,7 +142,7 @@ const Placeorder = () => {
           {/* Place Order Button */}
           <button
             onClick={handlePlaceOrder}
-            className='w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition-colors text-center'
+            className='w-full bg-[#FA0303] hover:bg-[#AF0202] text-white font-bold py-3 rounded-lg transition-colors text-center'
           >
             Place Order
           </button>
@@ -148,10 +168,13 @@ const Placeorder = () => {
                 <ShoppingBag className='w-6 h-6' />
               </button>
               <button className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'>
-                <Search className='w-6 h-6' />
+                <Search onClick={handeleSearch} className='w-6 h-6' />
               </button>
-              <button className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'>
-                <User className='w-6 h-6' />
+              <button
+                onClick={handleLogout}
+                className='w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-opacity-30 transition-all'
+              >
+                <LogOut className='w-6 h-6' />
               </button>
             </div>
           </div>
@@ -166,7 +189,7 @@ const Placeorder = () => {
           />
 
           {/* Bottom IG button */}
-          <div className='absolute bottom-8 left-8 z-20'>
+          <div className='absolute top-1/2 right-0 z-20 transform -translate-y-1/2'>
             <div className='w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm'>
               IG
             </div>
