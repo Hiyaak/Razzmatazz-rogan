@@ -8,18 +8,24 @@ import {
   User,
   Leaf,
   LogOut,
-  AlertCircle
+  AlertCircle,
+  Instagram
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import heroImage from '../../assets/concept.jpg'
+import heroImage from '../../assets/roghan.jpg'
 
-import oak from '../../assets/roghan.png'
+import roghan from '../../assets/roghan.jpg'
+import roghanlogo from '../../assets/roghnlogo.png'
 import ApiService, { ImagePath } from '../../Services/Apiservice'
 import RightPanelLayout from '../../Layout/RightPanelLayout'
 import { LuBike } from 'react-icons/lu'
 
 const FoodDeliveryApp = () => {
   const [productCategories, setproductCategories] = useState([])
+  const [managementStatus, setManagementStatus] = useState({
+    deliveryStatus: true,
+    pickupStatus: true
+  })
   const [selectedTab, setSelectedTab] = useState('Delivery')
   const [brandId, setBrandId] = useState(null)
   const [selectedLocation, setSelectedLocation] = useState({})
@@ -32,6 +38,10 @@ const FoodDeliveryApp = () => {
       )
       if (data.status) {
         setproductCategories(data.products)
+
+        if (data.management) {
+          setManagementStatus(data.management)
+        }
 
         if (data.products.length > 0) {
           const brandIdFromApi = data.products[0].brand_id
@@ -84,7 +94,16 @@ const FoodDeliveryApp = () => {
   }
 
   const handleMenuClick = () => {
-    navigate('/menu')
+    const storedBrandId = localStorage.getItem('brandId')
+    const registredUserId = localStorage.getItem(
+      `registredUserId_${storedBrandId}`
+    )
+
+    if (registredUserId) {
+      navigate('/userprofile')
+    } else {
+      navigate('/profile')
+    }
   }
 
   const handleshoopingcartClick = () => {
@@ -108,7 +127,7 @@ const FoodDeliveryApp = () => {
       {/* Desktop layout  */}
       <div className='hidden md:flex min-h-screen bg-gray-50'>
         {/* Left Panel*/}
-        <div className='w-2/5 bg-white border-r border-gray-100 flex flex-col h-screen'>
+        <div className='w-[42%] bg-white border-r border-gray-100 flex flex-col h-screen'>
           <div className='flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]'>
             {/* Header Section */}
             <div
@@ -119,14 +138,15 @@ const FoodDeliveryApp = () => {
                 {/* Left side - logo and text */}
                 <div className='flex items-center space-x-3'>
                   <img
-                    src={oak}
+                    src={roghanlogo}
                     alt='Logo'
                     className='w-16 h-16 object-contain'
                   />
                   <div>
-                    <h1 className='text-lg font-bold text-gray-900'>
+                    <h1 className='font-quicksand font-bold text-[16px] leading-tight text-gray-900 tracking-wide'>
                       Roghan
                     </h1>
+
                     <p className='text-sm text-gray-500'>Smoke Meat Everyday</p>
                   </div>
                 </div>
@@ -139,34 +159,39 @@ const FoodDeliveryApp = () => {
 
               {/* Delivery/Pickup Tabs */}
               <div className='flex justify-center gap-24 px-6 py-4 border-t border-gray-300'>
-                <button
-                  onClick={e => {
-                    e.stopPropagation()
-                    setSelectedTab('Delivery')
-                    pickupdelivery('delivery')
-                  }}
-                  className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
-                    selectedTab === 'delivery'
-                      ? 'bg-red-600 text-white shadow-md'
-                      : 'bg-white text-gray-700 border border-gray-400 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Delivery
-                </button>
-                <button
-                  onClick={e => {
-                    e.stopPropagation()
-                    setSelectedTab('Pickup')
-                    pickupdelivery('pickup')
-                  }}
-                  className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
-                    selectedTab === 'Pickup'
-                      ? 'bg-red-600 text-white shadow-md'
-                      : 'bg-white text-gray-700 border border-gray-400 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
-                  }`}
-                >
-                  Pickup
-                </button>
+                {managementStatus.deliveryStatus && (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation()
+                      setSelectedTab('delivery')
+                      pickupdelivery('delivery')
+                    }}
+                    className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
+                      selectedTab === 'delivery'
+                        ? 'bg-red-600 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-400 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Delivery
+                  </button>
+                )}
+
+                {managementStatus.pickupStatus && (
+                  <button
+                    onClick={e => {
+                      e.stopPropagation()
+                      setSelectedTab('pickup')
+                      pickupdelivery('pickup')
+                    }}
+                    className={`px-6 py-2.5 rounded-md font-medium transition-all duration-200 ${
+                      selectedTab === 'pickup'
+                        ? 'bg-red-600 text-white shadow-md'
+                        : 'bg-white text-gray-700 border border-gray-400 hover:border-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    Pickup
+                  </button>
+                )}
               </div>
             </div>
 
@@ -225,7 +250,7 @@ const FoodDeliveryApp = () => {
                   <img
                     src={`${ImagePath}${item.product_img[0]}`}
                     alt={item.productName}
-                    className='w-full h-56 object-cover'
+                    className='w-full h-60 object-cover'
                   />
                   <div className='absolute inset-0 bg-black/25 flex items-center justify-center'>
                     <h3 className='text-gray-100 font-bold text-lg text-center'>
@@ -264,15 +289,7 @@ const FoodDeliveryApp = () => {
                 <Menu className='w-6 h-6 text-gray-700' />
               </button>
             </div>
-            <div
-              onClick={handleBrandClick}
-              className='flex items-center space-x-2 cursor-pointer'
-            >
-              <div className='flex items-center justify-center w-8 h-8 bg-red-100 rounded-full'>
-                <Leaf className='w-4 h-4 text-red-600' />
-              </div>
-              <div className='font-bold text-xl text-red-600'>Roghan</div>
-            </div>
+
             <div className='flex items-center space-x-2'>
               <button onClick={handleshoopingcartClick} className='p-2'>
                 <ShoppingBag className='w-6 h-6 text-gray-700' />
@@ -283,15 +300,13 @@ const FoodDeliveryApp = () => {
                   className='w-6 h-6 text-gray-700'
                 />
               </button>
-              <button className='p-2'>
-                <User className='w-6 h-6 text-gray-700' />
-              </button>
             </div>
           </nav>
+
           {/* Instagram Floating Button */}
-          <div className='absolute top-1/2 right-0 z-20 transform -translate-y-1/2'>
+          <div className='absolute top-1/3 right-0 z-20 transform -translate-y-1/2'>
             <div className='w-12 h-12 bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-sm'>
-              IG
+              <Instagram className='w-6 h-6 text-white' />
             </div>
           </div>
 
@@ -304,6 +319,31 @@ const FoodDeliveryApp = () => {
                 alt='Hero Food'
                 className='w-full h-48 object-fill'
               />
+            </div>
+
+            <div
+              onClick={handleBrandClick}
+              className='flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition'
+            >
+              {/* Left side - Logo and Text */}
+              <div className='flex items-center space-x-3'>
+                <img
+                  src={roghan}
+                  alt='Logo'
+                  className='w-12 h-12 object-contain'
+                />
+                <div>
+                  <h1 className='text-md font-bold text-gray-900'>
+                    Roghan
+                  </h1>
+                  <p className='text-sm text-gray-500'>Smoke Meat Everyday</p>
+                </div>
+              </div>
+
+              {/* Right side - Info icon */}
+              <div className='flex items-center justify-center'>
+                <AlertCircle className='w-5 h-5 text-gray-600' />
+              </div>
             </div>
 
             {/* Delivery/Pickup Tabs */}
@@ -339,7 +379,7 @@ const FoodDeliveryApp = () => {
             </div>
 
             {/* Location and Time Info */}
-            <div className='px-4 pb-4 space-y-4 mt-2'>
+            <div className='px-4 pb-4 space-y-4 mt-2 border-b border-gray-200'>
               <div className='flex items-center justify-between'>
                 <div className='flex items-center gap-6'>
                   <MapPin className='w-5 h-5 text-gray-400' />
@@ -380,22 +420,22 @@ const FoodDeliveryApp = () => {
             </div>
 
             {/* Product Grid Section - Scrollable */}
-            <div className='px-4 py-4'>
-              <div className='grid grid-cols-2 gap-2'>
+            <div className='px-1 py-1'>
+              <div className='px-2 pt-8 pb-4 bg-gray-100 grid grid-cols-2 gap-2 cursor-pointer'>
                 {productCategories.map(item => (
                   <div
                     key={item._id}
-                    className='relative rounded-lg overflow-hidden shadow group'
+                    className='relative rounded-lg overflow-hidden shadow'
                     onClick={() => handleProduct(item._id, item.productName)}
                   >
                     <img
                       src={`${ImagePath}${item.product_img[0]}`}
                       alt={item.productName}
-                      className='w-full h-48 object-cover'
+                      className='w-full h-60 object-cover'
                     />
-                    <div className='absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition'>
-                      <h3 className='text-white font-bold text-lg text-center'>
-                        {item.productName}
+                    <div className='absolute inset-0 bg-black/25 flex items-center justify-center'>
+                      <h3 className='text-gray-100 font-bold text-lg text-center'>
+                        {item.productName.toUpperCase()}
                       </h3>
                     </div>
                   </div>
